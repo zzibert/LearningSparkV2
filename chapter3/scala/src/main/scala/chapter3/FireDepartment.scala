@@ -33,7 +33,20 @@ object FireDepartment {
       .withColumnRenamed("Delay", "ResponseDelayedInMins")
       .select("ResponseDelayedInMins")
       .where(col("ResponseDelayedInMins") > 5)
-      .show(5, false)
+
+    val fireTsDF = fireDF
+      .withColumn("IncidentDate", to_timestamp(col("CallDate"), "MM/dd/yyyy"))
+      .drop("CallDate")
+      .withColumn("OnWatchDate", to_timestamp(col("WatchDate"), "MM/dd/yyyy"))
+      .drop("WatchDate")
+      .withColumn("AvailableDtTS", to_timestamp(col("AvailableDtTm"), "MM/dd/yyyy hh:mm:ss a"))
+      .drop("AvailableDtTm")
+
+    fireTsDF
+      .select(year(col("IncidentDate")))
+      .distinct
+      .orderBy(year(col("IncidentDate")))
+      .show()
 
 
 
