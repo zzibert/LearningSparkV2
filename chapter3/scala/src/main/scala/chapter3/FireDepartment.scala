@@ -29,7 +29,13 @@ object FireDepartment {
       .where(col("CallType").isNotNull)
       .agg(countDistinct("CallType") as "DistinctCallTypes")
 
-    
+    val newFireDF = fireDF
+      .withColumnRenamed("Delay", "ResponseDelayedInMins")
+      .select("ResponseDelayedInMins")
+      .where(col("ResponseDelayedInMins") > 5)
+      .show(5, false)
+
+
 
   }
 }
