@@ -46,6 +46,15 @@ object FireDepartment {
       .select(year(col("IncidentDate")))
       .distinct
       .orderBy(year(col("IncidentDate")))
+
+
+    // Most common types of fire calls
+    fireTsDF
+      .select("CallType")
+      .where(col("CallType").isNotNull)
+      .groupBy("CallType")
+      .count
+      .orderBy(desc("count"))
       .show()
 
 
