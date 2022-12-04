@@ -39,7 +39,23 @@ object FireDepartment {
         |WHERE delay > 120 AND origin='SFO' AND destination='ORD'
         |ORDER BY delay DESC
         |""".stripMargin
+    )
+
+    spark.sql(
+      """SELECT delay, origin, destination,
+        |CASE
+        | WHEN delay > 360 THEN 'Very Long Delays'
+        | WHEN delay > 120 AND delay < 360 THEN 'Long Delays'
+        | WHEN delay > 60 AND delay < 120 THEN 'Short Delays'
+        | WHEN delay < 60 THEN 'Tolerable Delays'
+        | ELSE 'Early'
+        |END AS Flight_Delays
+        |FROM us_delay_flights_tbl
+        |ORDER BY origin, delay DESC
+        |""".stripMargin
     ).show(10)
+
+
 
 
 
