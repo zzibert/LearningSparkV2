@@ -3,59 +3,36 @@ package main.scala.chapter3
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.functions._
+import org.apache.spark.sql.functions.{min => Fmin, avg => Favg, max => Fmax, sum => Fsum}
 
 object FireDepartment {
   def main(args: Array[String]) {
 
     val spark = SparkSession
       .builder
-      .appName("Example-3_7")
+      .appName("SparkSQLExampleApp")
       .getOrCreate()
 
-    val fireDF = spark
-      .read
-      .option("samplingRatio", 0.001)
-      .option("header", true)
-      .csv("sf-fire-calls.csv")
+    val csvFile = "departuredelays.csv"
 
+    // Read and create temporary view
+    // infer schema (note that for larger files you may want to specify the schema)
+    val df = spark.read.format("csv")
+      .option("inferSchema", "true")
+      .option("header", "true")
+      .load(csvFile)
 
-    val fewFireDF = fireDF
-      .select("IncidentNumber", "AvailableDtTm", "CallType")
-      .where(col("CallType") =!= "Medical Incident")
+    val schema = "date STRING, delay INT, distance INT, origin STRING, destination STRING"
 
-    // Distinct call Types
-    val callTypesDF = fireDF
-      .select("CallType")
-      .where(col("CallType").isNotNull)
-      .agg(countDistinct("CallType") as "DistinctCallTypes")
+    // create temporary view
+    df.createOrReplaceTempView("us_delay_flights_tbl")
 
-    val newFireDF = fireDF
-      .withColumnRenamed("Delay", "ResponseDelayedInMins")
-      .select("ResponseDelayedInMins")
-      .where(col("ResponseDelayedInMins") > 5)
+    spark.sql(
+      """SELECT distance, origin, destination
+        |FROM us_delay_flights_tbl WHERE distance > 1000
+        |ORDER BY distance DESC
+        |""".stripMargin).show(10)
 
-    val fireTsDF = fireDF
-      .withColumn("IncidentDate", to_timestamp(col("CallDate"), "MM/dd/yyyy"))
-      .drop("CallDate")
-      .withColumn("OnWatchDate", to_timestamp(col("WatchDate"), "MM/dd/yyyy"))
-      .drop("WatchDate")
-      .withColumn("AvailableDtTS", to_timestamp(col("AvailableDtTm"), "MM/dd/yyyy hh:mm:ss a"))
-      .drop("AvailableDtTm")
-
-    fireTsDF
-      .select(year(col("IncidentDate")))
-      .distinct
-      .orderBy(year(col("IncidentDate")))
-
-
-    // Most common types of fire calls
-    fireTsDF
-      .select("CallType")
-      .where(col("CallType").isNotNull)
-      .groupBy("CallType")
-      .count
-      .orderBy(desc("count"))
-      .show()
 
 
 
