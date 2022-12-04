@@ -63,6 +63,22 @@ object FireDepartment {
         |""".stripMargin
     )
 
+    spark.sql("CREATE DATABASE learn_spark_db")
+    spark.sql("USE learn_spark_db")
+
+    // Create a managed table
+//    spark.sql("CREATE TABLE managed_us_delay_flights_tbl (date STRING, delay INT, " +
+//      "origin STRING, destination STRING)")
+
+    // Create an unmanaged table
+    spark.sql(
+      """
+        |CREATE TABLE us_delay_flights_tbl(date STRING, delay INT,
+        |distance INT, origin STRING, destination STRING)
+        |USING csv OPTIONS
+        |(PATH 'departuredelays.csv')
+        |""".stripMargin)
+
 
 
 
