@@ -33,6 +33,10 @@ object FireDepartment {
         |ORDER BY distance DESC
         |""".stripMargin)
 
+    df.select("distance", "origin", "destination")
+      .where(col("distance") > 1000)
+      .orderBy(col("distance").desc)
+
     spark.sql(
       """SELECT date, delay, origin, destination
         |FROM us_delay_flights_tbl
@@ -40,6 +44,10 @@ object FireDepartment {
         |ORDER BY delay DESC
         |""".stripMargin
     )
+
+    df.select("date", "delay", "origin", "destination")
+      .where(col("delay") > 120 && col("origin") === "SFO" && col("destination") === "ORD")
+      .orderBy(col("delay").desc)
 
     spark.sql(
       """SELECT delay, origin, destination,
@@ -53,7 +61,7 @@ object FireDepartment {
         |FROM us_delay_flights_tbl
         |ORDER BY origin, delay DESC
         |""".stripMargin
-    ).show(10)
+    )
 
 
 
