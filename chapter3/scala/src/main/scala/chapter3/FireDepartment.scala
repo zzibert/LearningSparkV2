@@ -31,7 +31,15 @@ object FireDepartment {
       """SELECT distance, origin, destination
         |FROM us_delay_flights_tbl WHERE distance > 1000
         |ORDER BY distance DESC
-        |""".stripMargin).show(10)
+        |""".stripMargin)
+
+    spark.sql(
+      """SELECT date, delay, origin, destination
+        |FROM us_delay_flights_tbl
+        |WHERE delay > 120 AND origin='SFO' AND destination='ORD'
+        |ORDER BY delay DESC
+        |""".stripMargin
+    ).show(10)
 
 
 
