@@ -173,16 +173,15 @@ object FireDepartment {
     // Obtain airports data set
     val airports = spark.read
       .option("header", "true")
-      .option("inferschema", "true")
+      .option("inferSchema", "true")
       .option("delimiter", "\t")
-      .text(airportsPath)
+      .csv(airportsPath)
 
     airports.createOrReplaceTempView("airports_na")
 
     // Obtain departure Delays data set
     val delays = spark.read
       .option("header", "true")
-      .option("inferschema", "true")
       .csv(delaysPath)
       .withColumn("delay", expr("CAST(delay AS INT) as delay"))
       .withColumn("distance", expr("CAST(distance as INT) as distance"))
@@ -194,10 +193,20 @@ object FireDepartment {
       expr(
         """
           |origin == 'SEA' AND destination == 'SFO' AND date like '01010%' AND delay > 0
-          |""".stripMargin)
-    )
+          |""".stripMargin))
 
     foo.createOrReplaceTempView("foo")
+
+    spark.sql("SELECT * FROM foo")
+
+    // Union two tables
+    val bar = delays.union(foo)
+    bar.createOrReplaceTempView("bar")
+
+    bar.filter(expr(
+      """origin == 'SEA' AND destination = 'SFO'
+        |AND date LIKE '01010%' AND delay > 0
+        |""".stripMargin))
 
 
 
