@@ -114,7 +114,20 @@ object FireDepartment {
     spark.range(1,9).createOrReplaceTempView("udf_test")
 
     // Query the cubed UDF
-    spark.sql("SELECT id, cubed(id) AS id_cubed FROM udf_test").show()
+    spark.sql("SELECT id, cubed(id) AS id_cubed FROM udf_test")
+
+    import spark.implicits._
+
+    // Create DataFrame with two rows of two arrays (tempc1, tempc2)
+    val t1 = Array(35, 36, 32, 30, 40, 42, 38)
+    val t2 = Array(31, 32, 34, 55, 56)
+    val tC = Seq(t1, t2).toDF("celsius")
+
+    tC.createOrReplaceTempView("tC")
+
+    tC.show()
+
+
 
 
 
