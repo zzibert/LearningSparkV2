@@ -79,6 +79,47 @@ object FireDepartment {
         |(PATH 'departuredelays.csv')
         |""".stripMargin)
 
+//    val usFlightsDF = spark.sql("SELECT * FROM us_delay_flights_tbl")
+//    val usFlightsDF2 = spark.table("us_delay_flights_tbl")
+//
+//    val file = "2010-summary.parquet"
+//
+////    val df = spark.read.format("parquet").load(file)
+//    val df2 = spark.read.load(file)
+//
+//    // use csv
+//    val df3 = spark.read.format("csv")
+//      .option("inferSchema", "true")
+//      .option("header", "true")
+//      .option("mode", "PERMISSIVE")
+//      .load("csv/*")
+//
+//    // use json
+//    val df4 = spark.read.format("json")
+//      .load("json/*")
+//
+//    df.write
+//      .mode("overwrite")
+//      .saveAsTable("us_delay_flights_tbl")
+
+    // User defined functions
+    val cubed = (s: Long) => {
+      s * s * s
+    }
+
+    // Register UDF
+    spark.udf.register("cubed", cubed)
+
+    // Create temporary view
+    spark.range(1,9).createOrReplaceTempView("udf_test")
+
+    // Query the cubed UDF
+    spark.sql("SELECT id, cubed(id) AS id_cubed FROM udf_test").show()
+
+
+
+
+
 
 
 
