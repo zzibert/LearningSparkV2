@@ -208,6 +208,11 @@ object FireDepartment {
         |AND date LIKE '01010%' AND delay > 0
         |""".stripMargin))
 
+    foo.join(
+      airports.as('air),
+      $"air.IATA" === $"origin"
+    ).select("City", "State", "date", "delay", "distance", "destination").show()
+
 
 
 
