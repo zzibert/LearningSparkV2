@@ -137,7 +137,14 @@ object FireDepartment {
         |SELECT celsius, filter(celsius, t -> t > 38) as high
         |FROM tC
         |""".stripMargin)
-      .show()
+
+
+    spark.sql(
+      """
+        |SELECT celsius, exists(celsius, t -> t > 38) as threshold
+        |FROM tC
+        |""".stripMargin
+    ).show()
 
 
 
