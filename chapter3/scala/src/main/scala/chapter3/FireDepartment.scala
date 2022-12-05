@@ -164,7 +164,44 @@ object FireDepartment {
           acc -> (acc div size(celsius) * 9 div 5) + 32
         ) as avgFahrenheit
       FROM tC
-     """).show()
+     """)
+
+    // Set file paths
+    val delaysPath = "departuredelays.csv"
+    val airportsPath = "airport-codes-na.txt"
+
+    // Obtain airports data set
+    val airports = spark.read
+      .option("header", "true")
+      .option("inferschema", "true")
+      .option("delimiter", "\t")
+      .text(airportsPath)
+
+    airports.createOrReplaceTempView("airports_na")
+
+    // Obtain departure Delays data set
+    val delays = spark.read
+      .option("header", "true")
+      .option("inferschema", "true")
+      .csv(delaysPath)
+      .withColumn("delay", expr("CAST(delay AS INT) as delay"))
+      .withColumn("distance", expr("CAST(distance as INT) as distance"))
+
+    delays.createOrReplaceTempView("departureDelays")
+
+    // create temporary small table
+    val foo = delays.filter(
+      expr(
+        """
+          |origin == 'SEA' AND destination == 'SFO' AND date like '01010%' AND delay > 0
+          |""".stripMargin)
+    )
+
+    foo.createOrReplaceTempView("foo")
+
+
+
+
 
 
 
