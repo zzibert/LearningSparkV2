@@ -144,7 +144,27 @@ object FireDepartment {
         |SELECT celsius, exists(celsius, t -> t > 38) as threshold
         |FROM tC
         |""".stripMargin
-    ).show()
+    )
+
+    val reduce = (a: Array[Int], acc: Int, f1: (Array[Int], Int) => Int, f2: Int => Int) => {
+      val result = a.fold(0)(_ + _)
+
+      f2(result)
+    }
+
+    spark.udf.register("reduce", reduce)
+
+    // Calculate average temperature and convert to F
+    spark.sql("""
+       SELECT celsius,
+       aggregate(
+          celsius,
+          0,
+          (t, acc) -> t + acc,
+          acc -> (acc div size(celsius) * 9 div 5) + 32
+        ) as avgFahrenheit
+      FROM tC
+     """).show()
 
 
 
