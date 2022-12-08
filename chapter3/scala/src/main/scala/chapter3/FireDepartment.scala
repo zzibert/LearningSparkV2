@@ -211,7 +211,16 @@ object FireDepartment {
     foo.join(
       airports.as('air),
       $"air.IATA" === $"origin"
-    ).select("City", "State", "date", "delay", "distance", "destination").show()
+    ).select("City", "State", "date", "delay", "distance", "destination")
+
+    // add new column
+    import org.apache.spark.sql.functions.expr
+    val foo2 = foo.withColumn(
+      "status",
+      expr("CASE WHEN delay <= 10 THEN 'On-time' ELSE 'Delayed' END")
+    )
+
+    foo2.show()
 
 
 
