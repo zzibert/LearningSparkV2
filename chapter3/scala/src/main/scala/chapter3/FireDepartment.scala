@@ -221,7 +221,10 @@ object FireDepartment {
     )
 
     val foo3 = foo2.drop("delay")
-    foo3.show()
+
+    val foo4 = foo3.withColumnRenamed("status", "flight_status")
+
+    foo4.show()
 
 
 
