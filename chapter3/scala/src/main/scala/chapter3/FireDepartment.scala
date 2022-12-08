@@ -220,7 +220,8 @@ object FireDepartment {
       expr("CASE WHEN delay <= 10 THEN 'On-time' ELSE 'Delayed' END")
     )
 
-    foo2.show()
+    val foo3 = foo2.drop("delay")
+    foo3.show()
 
 
 
